@@ -1,0 +1,29 @@
+.. Copyright (C) 2001-2015 NLTK Project
+.. For license information, see LICENSE.TXT
+
+==========
+Wikicorpus
+==========
+
+Wikicorpus is a corpus that can be imported easily:
+
+    >>> from nltk.corpus import wikicorpus as wc
+
+Is available in the following languages:
+
+    >>> wc.langs()
+    ['cat', 'eng', 'spa']
+
+It has lots of tokens:
+
+    >>> print("{:,}".format(sum(1 for _ in wc.words('cat'))))
+    47,198,179
+    >>> print("{:,}".format(sum(1 for _ in wc.words('eng'))))
+    600,000,000
+    >>> print("{:,}".format(sum(1 for _ in wc.words('spa'))))
+    112,553,741
+
+Is organized in documents:
+
+    >>> print(wc.docs('eng'))
+

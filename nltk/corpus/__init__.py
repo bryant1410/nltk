@@ -243,6 +243,8 @@ verbnet = LazyCorpusLoader(
     'verbnet', VerbnetCorpusReader, r'(?!\.).*\.xml')
 webtext = LazyCorpusLoader(
     'webtext', PlaintextCorpusReader, r'(?!README|\.).*\.txt', encoding='ISO-8859-2')
+wikicorpus = LazyCorpusLoader('wikicorpus', WikicorpusCorpusReader, r'[a-z]{3}/[a-z]+Etiquetado_\d+_\d+',
+                              encoding='ISO-8859-1')
 wordnet = LazyCorpusLoader(
     'wordnet', WordNetCorpusReader,
     LazyCorpusLoader('omw', CorpusReader, r'.*/wn-data-.*\.tab', encoding='utf8'))
