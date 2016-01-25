@@ -96,9 +96,6 @@ FAILING_LINE_2 = '20 000_tones WG_tm:20 Zu 0'
 
 FAILING_LINE_3 = 'f'
 
-FAILING_LINE_4 = 'nev'  # TODO: (CONTINUE WITH FIX and maybe) array of failing lines
-# TODO: or try to generalize when it is followed by EOF a failing line
-
 LINE_END_OF_ARTICLE = 'ENDOFARTICLE endofarticle NP00000 0'
 LINE_DOC_TAG_CLOSE = '</doc>'
 
@@ -152,7 +149,15 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
                             match = PATTERN_WORD_TRIPLE.match(line)
                             if match is None:
                                 if line != FAILING_LINE and line != FAILING_LINE_2 and line != FAILING_LINE_3:
-                                    raise ValueError("Could not parse the following line: {}".format(line))
+                                    next_line = read_clean_line(stream)
+                                    if next_line is None:
+                                        # It could be due to the file being truncated,
+                                        # so this line could not be parsed and there is no following line.
+                                        # So, we just ignore
+                                        break
+                                    else:
+                                        raise ValueError("Could not parse the following non-ending line: {}".format(
+                                                line))
 
                     if line == FAILING_LINE:
                         word = FAILING_LINE_WORD
@@ -197,4 +202,3 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
             assert line == LINE_DOC_TAG_CLOSE, "Expected a closing body tag"
 
         return [doc]
-1
