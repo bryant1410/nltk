@@ -19,10 +19,10 @@ from nltk.corpus.reader import concat, CorpusReader, StreamBackedCorpusView
 
 
 class Document:
-    def __init__(self, _id, title, dbindex):
+    def __init__(self, _id, title, db_index):
         self.id = _id
         self.title = title
-        self.dbindex = dbindex
+        self.db_index = db_index
         self.sents = []
 
     def text(self):
@@ -96,9 +96,19 @@ FAILING_LINE_2 = '20 000_tones WG_tm:20 Zu 0'
 
 FAILING_LINE_3 = 'f'
 
+FAILING_LINE_4 = 'nev'  # TODO: (CONTINUE WITH FIX and maybe) array of failing lines
+# TODO: or try to generalize when it is followed by EOF a failing line
+
+LINE_END_OF_ARTICLE = 'ENDOFARTICLE endofarticle NP00000 0'
+LINE_DOC_TAG_CLOSE = '</doc>'
+
 
 def read_clean_line(stream):
-    return stream.readline().strip().replace(chr(160), " ")
+    line = stream.readline()
+    if line == '':  # EOF
+        return None
+    else:
+        return line.strip().replace(chr(160), " ")
 
 
 class WikicorpusCorpusView(StreamBackedCorpusView):
@@ -114,21 +124,21 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
             if line == '':
                 # This is due to an error in a file in which two consecutive closing tags are present
                 line = read_clean_line(stream)
-                assert line == '</doc>', "Expected a closing body tag"
+                assert line == LINE_DOC_TAG_CLOSE, "Expected a closing body tag"
 
                 return []
             else:
                 raise ValueError("Expected an opening document tag")
 
-        _id, title, dbindex = match.groups()
+        _id, title, db_index = match.groups()
 
-        doc = Document(_id, title, dbindex)
+        doc = Document(_id, title, db_index)
 
         line = read_clean_line(stream)
-        while line != 'ENDOFARTICLE endofarticle NP00000 0' and line != '</doc>':
+        while line is not None and line != LINE_END_OF_ARTICLE and line != LINE_DOC_TAG_CLOSE:
             sent = []
 
-            while line != '' and line != 'ENDOFARTICLE endofarticle NP00000 0' and line != '</doc>':
+            while line is not None and line != '' and line != LINE_END_OF_ARTICLE and line != LINE_DOC_TAG_CLOSE:
                 if line == 'Fz 0':
                     word = ''
                     lemma = ''
@@ -173,8 +183,10 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
 
             if line == '':
                 line = read_clean_line(stream)
+            elif line is None:
+                break
 
-        if line == 'ENDOFARTICLE endofarticle NP00000 0':
+        if line == LINE_END_OF_ARTICLE:
             line = read_clean_line(stream)
             assert line == '. . Fp 0', "Expected a dot after the end of article"
 
@@ -182,6 +194,7 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
             assert line == '', "Expected a blank line"
 
             line = read_clean_line(stream)
-            assert line == '</doc>', "Expected a closing body tag"
+            assert line == LINE_DOC_TAG_CLOSE, "Expected a closing body tag"
 
         return [doc]
+1
