@@ -14,7 +14,7 @@ Is available in the following languages:
     >>> wc.langs()
     ['cat', 'eng', 'spa']
 
-It has lots of tokens (this calculation takes several minutes):
+It has lots of tokens (this calculation could take like 2 hours):
 
     >>> print("{:,}".format(sum(1 for _ in wc.words('cat'))))
     47,198,179
