@@ -154,6 +154,7 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
                                         # It could be due to the file being truncated,
                                         # so this line could not be parsed and there is no following line.
                                         # So, we just ignore
+                                        line = None
                                         break
                                     else:
                                         raise ValueError("Could not parse the following non-ending line: {}".format(
@@ -181,7 +182,7 @@ class WikicorpusCorpusView(StreamBackedCorpusView):
 
                 line = read_clean_line(stream)
 
-            if line == FAILING_LINE_3:
+            if line is None or line == FAILING_LINE_3:
                 break
 
             doc.sents.append(sent)
